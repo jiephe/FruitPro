@@ -6,6 +6,7 @@ cc.FileUtils:getInstance():addSearchPath("res/")
 require "config"
 require "cocos.init"
 
+-- for SVN test in github
 local function main()
     require("app.MyApp"):create():run()
 end
