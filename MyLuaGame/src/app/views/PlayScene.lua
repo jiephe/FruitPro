@@ -1,4 +1,4 @@
-FruitItem = import("app.views.FruitItem")
+local FruitItem = import("app.views.FruitItem")
 
 local PlayScene = class("PlayScene", function()
 	return display.newScene("PlayScene")
@@ -20,18 +20,20 @@ function PlayScene:ctor()
 	self:initUI()
 
 	-- 初始化随机数
-	math.newrandomseed()
+	--math.newrandomseed()
 
 	--  计算水果矩阵左下角的x、y坐标：以矩阵中点对齐屏幕中点来计算，然后再做Y轴修正。
 	self.matrixLBX = (display.width - FruitItem.getWidth() * self.xCount - (self.yCount - 1) * self.fruitGap) / 2
 	self.matrixLBY = (display.height - FruitItem.getWidth() * self.yCount - (self.xCount - 1) * self.fruitGap) / 2 - 30
 
 	-- 等待转场特效结束后再加载矩阵
-	self:addNodeEventListener(cc.NODE_EVENT, function(event)
-		if event.name == "enterTransitionFinish" then
-			self:initMartix()
-		end
-	end)
+--	self:addNodeEventListener(cc.NODE_EVENT, function(event)
+--		if event.name == "enterTransitionFinish" then
+--			self:initMartix()
+--		end
+--	end)
+
+    self:initMartix()
 end
 
 function PlayScene:initUI()
@@ -48,10 +50,12 @@ function PlayScene:initUI()
 	display.newSprite("#highscore_part.png")
 		:align(display.LEFT_CENTER, display.cx + 10, display.top - 26)
 		:addTo(self)
-
-	self.highSorceLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.highSorce), font = "font/earth38.fnt"})
-		:align(display.CENTER, display.cx + 105, display.top - 24)
-		:addTo(self)
+        
+    self.highSorceLabel = cc.LabelBMFont:create("0", "font/earth38.fnt")
+	--self.highSorceLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.highSorce), font = "font/earth38.fnt"})
+	self.highSorceLabel:setString(tostring(self.highSorce))
+    self.highSorceLabel:align(display.CENTER, display.cx + 105, display.top - 24)
+	self.highSorceLabel:addTo(self)
 	
 	-- 声音
 	display.newSprite("#sound.png")
@@ -67,9 +71,11 @@ function PlayScene:initUI()
 		:align(display.LEFT_CENTER, display.left + 170, display.top - 80)
 		:addTo(self)
 
-	self.highStageLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.stage), font = "font/earth32.fnt"})
-		:align(display.CENTER, display.left + 214, display.top - 78)
-        :addTo(self)
+    self.highStageLabel = cc.LabelBMFont:create("0", "font/earth32.fnt")
+	--self.highStageLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.stage), font = "font/earth32.fnt"})
+	self.highStageLabel:setString(tostring(self.stage))
+    self.highStageLabel:align(display.CENTER, display.left + 214, display.top - 78)
+    self.highStageLabel:addTo(self)
 	
 	-- target
 	display.newSprite("#tarcet.png")
@@ -80,23 +86,29 @@ function PlayScene:initUI()
 		:align(display.LEFT_CENTER, display.cx + 130, display.top - 78)
 		:addTo(self)
 
-	self.highTargetLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.target), font = "font/earth32.fnt"})
-		:align(display.CENTER, display.cx + 195, display.top - 76)
-        :addTo(self)
+    self.highTargetLabel = cc.LabelBMFont:create("0", "font/earth32.fnt")
+	--self.highTargetLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.target), font = "font/earth32.fnt"})
+	self.highTargetLabel:setString(tostring(self.target))
+    self.highTargetLabel:align(display.CENTER, display.cx + 195, display.top - 76)
+    self.highTargetLabel:addTo(self)
 
 	-- current sorce
 	display.newSprite("#score_now.png")
 		:align(display.CENTER, display.cx, display.top - 150)
 		:addTo(self)
 
-	self.curSorceLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.curSorce), font = "font/earth48.fnt"})
-		:align(display.CENTER, display.cx, display.top - 150)
-        :addTo(self)
+    self.curSorceLabel = cc.LabelBMFont:create("0", "font/earth48.fnt")
+	--self.curSorceLabel = cc.ui.UILabel.new({UILabelType = 1, text = tostring(self.curSorce), font = "font/earth48.fnt"})
+    self.curSorceLabel:setString(tostring(self.curSorce))
+    self.curSorceLabel:align(display.CENTER, display.cx, display.top - 150)
+    self.curSorceLabel:addTo(self)
 	
 	-- 选中水果分数
-	self.activeScoreLabel = display.newTTFLabel({text = "", size = 30})
-		:pos(display.width / 2, 120)
-		:addTo(self)
+    self.activeScoreLabel = cc.LabelTTF:create()
+    self.activeScoreLabel:setFontSize(30) 
+	--self.activeScoreLabel = display.newTTFLabel({text = "", size = 30})
+		self.activeScoreLabel:setPosition(cc.p(display.width / 2, 120))
+		self.activeScoreLabel:addTo(self)
 	self.activeScoreLabel:setColor(display.COLOR_WHITE)
 end
 
@@ -127,24 +139,70 @@ function PlayScene:createAndDropFruit(x, y, fruitIndex)
     self.matrix[(y - 1) * self.xCount + x] = newFruit
     self:addChild(newFruit)
 
-	-- 绑定触摸事件
-	newFruit:setTouchEnabled(true)
-	newFruit:addNodeEventListener(cc.NODE_TOUCH_EVENT, function(event)
-		if event.name == "ended" then
-			if newFruit.isActive then
-				self:removeActivedFruits()
-				self:dropFruits()
-			else
-				self:inactive()
-				self:activeNeighbor(newFruit)
-				self:showActivesScore()
-			end
-		end
+--	-- 绑定触摸事件
+--    local function onMyTouchBegan( touch,event )
+--        return true
+--    end
 
-		if event.name == "began" then
-			return true
-		end
-	end)
+--    local function onMyTouchEnded(touch, event)                
+--        if self:containsTouchLocation(newFruit, touch:getLocation().x, touch:getLocation().y) then
+--		    if newFruit.isActive then
+--			    self:removeActivedFruits()
+--			    self:dropFruits()
+--		    else
+--			    self:inactive()
+--			    self:activeNeighbor(newFruit)
+--			    self:showActivesScore()
+--		    end
+--        end
+--    end
+
+--    local touchListen = cc.EventListenerTouchOneByOne:create()
+--    touchListen:registerScriptHandler(onMyTouchBegan, cc.Handler.EVENT_TOUCH_BEGAN)
+--    touchListen:registerScriptHandler(onMyTouchEnded, cc.Handler.EVENT_TOUCH_ENDED)
+--    local eventDispatcher = newFruit:getEventDispatcher()
+--    eventDispatcher:addEventListenerWithSceneGraphPriority(touchListen, newFruit)
+
+
+--    newFruit:enableNodeEvents()
+--	local listener = cc.EventListenerTouchOneByOne:create()
+--	listener:registerScriptHandler(function(touch, event)
+--		if event.name == "ended" then
+--			if newFruit.isActive then
+--				self:removeActivedFruits()
+--				self:dropFruits()
+--			else
+--				self:inactive()
+--				self:activeNeighbor(newFruit)
+--				self:showActivesScore()
+--			end
+--		end
+
+--		if event.name == "began" then
+--			return true
+--		end
+--	end, cc.Handler.EVENT_TOUCH_BEGAN)
+
+--	local eventDispatcher = newFruit:getEventDispatcher()
+--	eventDispatcher:addEventListenerWithSceneGraphPriority(listener, newFruit)
+
+--	newFruit:setTouchEnabled(true)
+--	newFruit:addNodeEventListener(cc.NODE_TOUCH_EVENT, function(event)
+--		if event.name == "ended" then
+--			if newFruit.isActive then
+--				self:removeActivedFruits()
+--				self:dropFruits()
+--			else
+--				self:inactive()
+--				self:activeNeighbor(newFruit)
+--				self:showActivesScore()
+--			end
+--		end
+
+--		if event.name == "began" then
+--			return true
+--		end
+--	end)
 end
 
 function PlayScene:removeActivedFruits()
@@ -173,7 +231,9 @@ function PlayScene:removeActivedFruits()
 end
 
 function PlayScene:scorePopupEffect(score, px, py)
-	local labelScore = cc.ui.UILabel.new({UILabelType = 1, text = tostring(score), font = "font/earth32.fnt"})
+    local labelScore = cc.LabelBMFont:create("0", "font/earth32.fnt")
+    labelScore:setString(tostring(score))
+	--local labelScore = cc.ui.UILabel.new({UILabelType = 1, text = tostring(score), font = "font/earth32.fnt"})
 
 	local move = cc.MoveBy:create(0.8, cc.p(0, 80))
 	local fadeOut = cc.FadeOut:create(0.8)
@@ -183,9 +243,9 @@ function PlayScene:scorePopupEffect(score, px, py)
 		cc.CallFunc:create(function() labelScore:removeFromParent() end)
 	})
 
-	labelScore:pos(px, py)
-		:addTo(self)
-		:runAction(action)
+	labelScore:setPosition(cc.p(px, py))
+	labelScore:addTo(self)
+	labelScore:runAction(action)
 end
 
 function PlayScene:dropFruits()

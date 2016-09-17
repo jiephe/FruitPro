@@ -25,8 +25,13 @@ function MainScene:onCreate()
 
     --2. º”‘ÿplist¿ÔµƒÕº∆¨
     local function menuCallback(tag, menuItem)
-		local playScene = import("app.views.PlayScene"):new()
-		display.replaceScene(playScene, "turnOffTiles", 0.5) 
+		local playScene = import("app.views.PlayScene"):new()			
+        local director=cc.Director:getInstance()
+		if director:getRunningScene() then
+			director:replaceScene(playScene)
+		end
+
+		--display.replaceScene(playScene, "turnOffTiles", 0.5) 
     end
 
     local menu = cc.Menu:create()

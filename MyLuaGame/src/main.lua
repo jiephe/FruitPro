@@ -7,9 +7,6 @@ require "config"
 require "cocos.init"
 
 local function main()
-    local test = MyClass:create()
-    local ret  = test:foo(99)
-
     require("app.MyApp"):create():run()
 end
 
