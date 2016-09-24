@@ -42,6 +42,31 @@ function PlayScene:initUI()
 		:move(display.center)
 		:addTo(self)
 
+    local function menuCallback(tag, menuItem)
+	    local mainS = import("app.views.MainScene")		
+        --local mainScene = display.newScene(mainS:getName())
+--        local director  = cc.Director:getInstance()
+--	    if director:getRunningScene() then
+--		    director:replaceScene(mainScene)
+--	    end
+        require("app.MyApp"):enterScene(mainS:getName())
+        --display.runScene(mainScene)
+    end
+
+    local menu = cc.Menu:create()
+    menu:setAnchorPoint(cc.p(0.5, 0.5))
+    menu:setPosition(cc.p(0, 0))
+    self:addChild(menu, 1)
+    local menuItem = cc.MenuItemSprite:create(display.newSprite("#startBtn_N.png"), 
+                                                display.newSprite("#startBtn_N.png"), 
+                                                display.newSprite("#startBtn_N.png"))
+
+    menu:addChild(menuItem)
+    menuItem:setAnchorPoint(cc.p(0.5, 0.5))
+    menuItem:setPosition(cc.p(display.cx, display.cy-450))
+    menuItem:registerScriptTapHandler(menuCallback)
+
+
 	-- high sorce
 	display.newSprite("#high_score.png")
 		:align(display.LEFT_CENTER, display.left + 15, display.top - 30)
@@ -129,6 +154,26 @@ function PlayScene:initMartix()
 	end
 end
 
+function PlayScene:containsTouchLocation(item, x, y)
+    local pos = cc.p(item:getPosition())
+    local position = item:convertToWorldSpace(cc.p(item:getPosition()))
+    position = cc.p(item:getPosition())
+    local s = item:getContentSize()
+
+    local touchRect
+
+--    if self:isSelectCard() then --and self._bTouched then
+--        touchRect = cc.rect(position.x, position.y - self._MJOffsetY, s.width, s.height + self._MJOffsetY)
+--    else
+--        touchRect = cc.rect(position.x, position.y, s.width, s.height)
+--    end
+
+    touchRect = cc.rect(position.x, position.y, s.width, s.height)
+
+    local b = cc.rectContainsPoint(touchRect, cc.p(x, y))
+    return b
+end
+
 function PlayScene:createAndDropFruit(x, y, fruitIndex)
     local newFruit = FruitItem.new(x, y, fruitIndex)
     local endPosition = self:positionOfFruit(x, y)
@@ -139,70 +184,30 @@ function PlayScene:createAndDropFruit(x, y, fruitIndex)
     self.matrix[(y - 1) * self.xCount + x] = newFruit
     self:addChild(newFruit)
 
---	-- 绑定触摸事件
---    local function onMyTouchBegan( touch,event )
---        return true
---    end
+	-- 绑定触摸事件
+    local function onMyTouchBegan( touch,event )
+        return true
+    end
 
---    local function onMyTouchEnded(touch, event)                
---        if self:containsTouchLocation(newFruit, touch:getLocation().x, touch:getLocation().y) then
---		    if newFruit.isActive then
---			    self:removeActivedFruits()
---			    self:dropFruits()
---		    else
---			    self:inactive()
---			    self:activeNeighbor(newFruit)
---			    self:showActivesScore()
---		    end
---        end
---    end
+    local function onMyTouchEnded(touch, event)                
+        if self:containsTouchLocation(newFruit, touch:getLocation().x, touch:getLocation().y) then
+		    if newFruit.isActive then
+			    self:removeActivedFruits()
+			    self:dropFruits()
+		    else
+			    self:inactive()
+			    self:activeNeighbor(newFruit)
+			    self:showActivesScore()
+		    end
+        end
+        return true
+    end
 
---    local touchListen = cc.EventListenerTouchOneByOne:create()
---    touchListen:registerScriptHandler(onMyTouchBegan, cc.Handler.EVENT_TOUCH_BEGAN)
---    touchListen:registerScriptHandler(onMyTouchEnded, cc.Handler.EVENT_TOUCH_ENDED)
---    local eventDispatcher = newFruit:getEventDispatcher()
---    eventDispatcher:addEventListenerWithSceneGraphPriority(touchListen, newFruit)
-
-
---    newFruit:enableNodeEvents()
---	local listener = cc.EventListenerTouchOneByOne:create()
---	listener:registerScriptHandler(function(touch, event)
---		if event.name == "ended" then
---			if newFruit.isActive then
---				self:removeActivedFruits()
---				self:dropFruits()
---			else
---				self:inactive()
---				self:activeNeighbor(newFruit)
---				self:showActivesScore()
---			end
---		end
-
---		if event.name == "began" then
---			return true
---		end
---	end, cc.Handler.EVENT_TOUCH_BEGAN)
-
---	local eventDispatcher = newFruit:getEventDispatcher()
---	eventDispatcher:addEventListenerWithSceneGraphPriority(listener, newFruit)
-
---	newFruit:setTouchEnabled(true)
---	newFruit:addNodeEventListener(cc.NODE_TOUCH_EVENT, function(event)
---		if event.name == "ended" then
---			if newFruit.isActive then
---				self:removeActivedFruits()
---				self:dropFruits()
---			else
---				self:inactive()
---				self:activeNeighbor(newFruit)
---				self:showActivesScore()
---			end
---		end
-
---		if event.name == "began" then
---			return true
---		end
---	end)
+    local touchListen = cc.EventListenerTouchOneByOne:create()
+    touchListen:registerScriptHandler(onMyTouchBegan, cc.Handler.EVENT_TOUCH_BEGAN)
+    touchListen:registerScriptHandler(onMyTouchEnded, cc.Handler.EVENT_TOUCH_ENDED)
+    local eventDispatcher = newFruit:getEventDispatcher()
+    eventDispatcher:addEventListenerWithSceneGraphPriority(touchListen, newFruit)
 end
 
 function PlayScene:removeActivedFruits()

@@ -11,7 +11,13 @@ end)
 local g_fruitWidth = 0
 
 function FruitItem:ctor()
-    self:setTouch()
+    --self:setTouch()
+end
+
+function FruitItem:getSelfIndex()
+    if self.fruitIndex then
+        return self.fruitIndex
+    end
 end
 
 function FruitItem:setActive(active)
@@ -54,30 +60,30 @@ function FruitItem:containsTouchLocation(x, y)
     return b
 end
 
-function FruitItem:setTouch()
-    local function onMyTouchBegan( touch,event )
-        return true
-    end
+--function FruitItem:setTouch()
+--    local function onMyTouchBegan( touch,event )
+--        return true
+--    end
 
-    local function onMyTouchEnded(touch, event)                
-        if self:containsTouchLocation(touch:getLocation().x, touch:getLocation().y) then
-		    if self.isActive then
-			    self:removeActivedFruits()
-			    self:dropFruits()
-		    else
-			    self:inactive()
-			    self:activeNeighbor(newFruit)
-			    self:showActivesScore()
-		    end
-        end
-    end
+--    local function onMyTouchEnded(touch, event)                
+--        if self:containsTouchLocation(touch:getLocation().x, touch:getLocation().y) then
+--		    if self.isActive then
+--			    self:removeActivedFruits()
+--			    self:dropFruits()
+--		    else
+--			    self:inactive()
+--			    self:activeNeighbor(newFruit)
+--			    self:showActivesScore()
+--		    end
+--        end
+--    end
 
-    local touchListen = cc.EventListenerTouchOneByOne:create()
-    touchListen:registerScriptHandler(onMyTouchBegan, cc.Handler.EVENT_TOUCH_BEGAN)
-    touchListen:registerScriptHandler(onMyTouchEnded, cc.Handler.EVENT_TOUCH_ENDED)
-    local eventDispatcher = self:getEventDispatcher()
-    eventDispatcher:addEventListenerWithSceneGraphPriority(touchListen, self)
-end
+--    local touchListen = cc.EventListenerTouchOneByOne:create()
+--    touchListen:registerScriptHandler(onMyTouchBegan, cc.Handler.EVENT_TOUCH_BEGAN)
+--    touchListen:registerScriptHandler(onMyTouchEnded, cc.Handler.EVENT_TOUCH_ENDED)
+--    local eventDispatcher = self:getEventDispatcher()
+--    eventDispatcher:addEventListenerWithSceneGraphPriority(touchListen, self)
+--end
 
 function FruitItem.getWidth()
     g_fruitWidth = 0
