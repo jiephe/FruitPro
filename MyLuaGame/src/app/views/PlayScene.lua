@@ -43,14 +43,15 @@ function PlayScene:initUI()
 		:addTo(self)
 
     local function menuCallback(tag, menuItem)
-	    local mainS = import("app.views.MainScene")		
-        --local mainScene = display.newScene(mainS:getName())
---        local director  = cc.Director:getInstance()
---	    if director:getRunningScene() then
---		    director:replaceScene(mainScene)
---	    end
-        require("app.MyApp"):enterScene(mainS:getName())
-        --display.runScene(mainScene)
+	    local mainScene = import("app.views.MainScene"):new()	
+        local newScene = cc.Scene:create()
+        mainScene:addTo(newScene) 	
+		local director=cc.Director:getInstance()
+		if director:getRunningScene() then
+			director:replaceScene(newScene)
+		else
+			director:runWithScene(newScene)
+		end
     end
 
     local menu = cc.Menu:create()
